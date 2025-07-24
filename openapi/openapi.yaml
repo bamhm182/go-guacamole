@@ -1,0 +1,3214 @@
+---
+  openapi: "3.0.0"
+  info: 
+    version: "1.5.5"
+    title: "Apache Guacamole"
+    description: "Apache Guacamole REST API Documentation"
+    contact:
+      name: "bamhm182"
+  servers: 
+    - 
+      url: "{scheme}://{domain}:{port}/{basePath}"
+      variables: 
+        scheme: 
+          enum: 
+            - "https"
+            - "http"
+          default: "http"
+        basePath: 
+          default: "guacamole/api"
+        domain:
+          default: "localhost"
+        port:
+          default: "5860"
+  tags: 
+    - name: "Authentication"
+    - name: "Connection Groups"
+    - name: "Connections"
+    - name: "Schema"
+    - name: "Sharing Profiles"
+    - name: "User Groups"
+    - name: "Users"
+  components: 
+    responses:
+      PermissionDenied:
+        description: "Permission Denied."
+        content:
+          application/json:
+            example:
+              message: "Permission Denied."
+              translatableMessage: 
+                key: APP.TEXT_UNTRANSLATED
+                variables:
+                  MESSAGE: "Permission Denied."
+              statusCode: null
+              expected: null
+              type: "PERMISSION_DENIED"
+    securitySchemes: 
+      GuacamoleTokenAuth:
+        type: apiKey
+        in: header
+        name: Guacamole-Token
+        description: "Pass the authentication token as a header called 'Guacamole-Token'"
+    parameters:
+      ConnectionGroupID:
+        name: "ConnectionGroupID"
+        in: "path"
+        schema: 
+          type: "string"
+        required: true
+        description: "ID of Connection Group to Query"
+      ConnectionID:
+        name: "ConnectionID"
+        in: "path"
+        schema: 
+          type: "string"
+        required: true
+        description: "ID of Connection to Query"
+      DbTypeParam:
+        name: "DbType"
+        in: path
+        required: true
+        schema:
+          type: string
+          enum: 
+            - "postgresql"
+            - "postgresql-shared"
+            - "mysql"
+            - "mysql-shared"
+            - "sqlserver"
+            - "sqlserver-shared"
+          default: postgresql
+        description: "Type of Database used by Guacamole"
+      SharingProfileID:
+        name: "SharingProfileID"
+        in: path
+        required: true
+        schema:
+          type: string
+          default: "Example Sharing Profile"
+        description: "ID of Sharing Profile to Query"
+      UserGroupName:
+        name: "UserGroupName"
+        in: path
+        required: true
+        schema:
+          type: string
+          default: "Example Group"
+        description: "Name of Group to Query"
+      Username:
+        name: "Username"
+        in: path
+        required: true
+        schema:
+          type: string
+          default: "bob"
+        description: "Username to Query"
+    schemas:
+      Attributes_UserGroup_Restrictions:
+        type: object
+        properties:
+          disabled:
+            type: boolean
+      Attributes_User_Profile:
+        type: object
+        properties:
+          guac-full-name:
+            type: string
+            description: Full name of the user
+          guac-email-address:
+            type: string
+            format: email
+            description: Email address of the user
+          guac-organization:
+            type: string
+            description: Organization name
+          guac-organizational-role:
+            type: string
+            description: Organizational role
+        required:
+          - guac-full-name
+      Attributes_User_Restrictions:
+        type: object
+        properties:
+          disabled:
+            type: boolean
+            description: Whether the user is disabled
+          expired:
+            type: boolean
+            description: Whether the user is expired
+          access-window-start:
+            type: string
+            format: time
+            description: Start of access window (HH:MM:SS)
+          access-window-end:
+            type: string
+            format: time
+            description: End of access window (HH:MM:SS)
+          valid-from:
+            type: string
+            format: date
+            description: Date from which the user is valid (YYYY-MM-DD)
+          valid-until:
+            type: string
+            format: date
+            description: Date until which the user is valid (YYYY-MM-DD)
+          timezone:
+            type: string
+            description: Timezone identifier (e.g., 'America/New_York')
+      Attributes_Connection_Concurrency:
+        type: object
+        properties:
+          max-connections:
+            type: integer
+            description: Maximum number of connections
+          max-connections-per-user:
+            type: integer
+            description: Maximum number of connections per user
+          enable-session-affinity:
+            type: boolean
+            description: Whether session affinity is enabled
+      Attributes_Connection_Guacd:
+        type: object
+        properties:
+          guacd-hostname:
+            type: string
+          guacd-port:
+            type: integer
+          guacd-encryption:
+            type: string
+            enum:
+              - ""
+              - none
+              - ssl
+      Attributes_Connection_LoadBalancing:
+        type: object
+        properties:
+          weight:
+            type: integer
+          failover-only:
+            type: boolean
+      Connection_Kubernetes:
+        type: object
+        properties:
+          connectionForms:
+            type: array
+            items:
+              allOf:
+                - $ref: '#/components/schemas/Form_Connection_Network'
+                - $ref: '#/components/schemas/Form_Connection_Container'
+                - $ref: '#/components/schemas/Form_Connection_Authentication'
+                - $ref: '#/components/schemas/Form_Connection_Display'
+                - $ref: '#/components/schemas/Form_Connection_Behavior'
+                - $ref: '#/components/schemas/Form_Connection_Typescript'
+                - $ref: '#/components/schemas/Form_Connection_Recording'
+          sharingProfileForms:
+            type: array
+            items:
+              $ref: '#/components/schemas/Form_SharingProfile_Display'
+      Connection_RDP:
+        type: object
+        properties:
+          connectionForms:
+            type: array
+            items:
+              allOf:
+                - $ref: '#/components/schemas/Form_Connection_Network'
+                - $ref: '#/components/schemas/Form_Connection_Authentication'
+                - $ref: '#/components/schemas/Form_Connection_Gateway'
+                - $ref: '#/components/schemas/Form_Connection_BasicParameters'
+                - $ref: '#/components/schemas/Form_Connection_Display'
+                - $ref: '#/components/schemas/Form_Connection_Clipboard'
+                - $ref: '#/components/schemas/Form_Connection_DeviceRedirection'
+                - $ref: '#/components/schemas/Form_Connection_Performance'
+                - $ref: '#/components/schemas/Form_Connection_RemoteApp'
+                - $ref: '#/components/schemas/Form_Connection_PreconnectionPdu'
+                - $ref: '#/components/schemas/Form_Connection_LoadBalancing'
+                - $ref: '#/components/schemas/Form_Connection_Recording'
+                - $ref: '#/components/schemas/Form_Connection_Sftp'
+                - $ref: '#/components/schemas/Form_Connection_Wol'
+          sharingProfileForms:
+            type: array
+            items:
+              $ref: '#/components/schemas/Form_SharingProfile_Display'
+      Connection_SSH:
+        type: object
+        properties:
+          connectionForms:
+            type: array
+            items:
+              allOf:
+                - $ref: '#/components/schemas/Form_Connection_Network'
+                - $ref: '#/components/schemas/Form_Connection_Authentication'
+                - $ref: '#/components/schemas/Form_Connection_Display'
+                - $ref: '#/components/schemas/Form_Connection_Clipboard'
+                - $ref: '#/components/schemas/Form_Connection_Session'
+                - $ref: '#/components/schemas/Form_Connection_Behavior'
+                - $ref: '#/components/schemas/Form_Connection_Typescript'
+                - $ref: '#/components/schemas/Form_Connection_Recording'
+                - $ref: '#/components/schemas/Form_Connection_Sftp'
+                - $ref: '#/components/schemas/Form_Connection_Wol'
+          sharingProfileForms:
+            type: array
+            items:
+              $ref: '#/components/schemas/Form_SharingProfile_Display'
+      Connection_Telnet:
+        type: object
+        properties:
+          connectionForms:
+            type: array
+            items:
+              allOf:
+                - $ref: '#/components/schemas/Form_Connection_Network'
+                - $ref: '#/components/schemas/Form_Connection_Authentication'
+                - $ref: '#/components/schemas/Form_Connection_Display'
+                - $ref: '#/components/schemas/Form_Connection_Clipboard'
+                - $ref: '#/components/schemas/Form_Connection_Behavior'
+                - $ref: '#/components/schemas/Form_Connection_Typescript'
+                - $ref: '#/components/schemas/Form_Connection_Recording'
+                - $ref: '#/components/schemas/Form_Connection_Wol'
+          sharingProfileForms:
+            type: array
+            items:
+              $ref: '#/components/schemas/Form_SharingProfile_Display'
+      Connection_VNC:
+        type: object
+        properties:
+          connectionForms:
+            type: array
+            items:
+              allOf:
+                - $ref: '#/components/schemas/Form_Connection_Network'
+                - $ref: '#/components/schemas/Form_Connection_Authentication'
+                - $ref: '#/components/schemas/Form_Connection_Display'
+                - $ref: '#/components/schemas/Form_Connection_Clipboard'
+                - $ref: '#/components/schemas/Form_Connection_Repeater'
+                - $ref: '#/components/schemas/Form_Connection_Recording'
+                - $ref: '#/components/schemas/Form_Connection_Sftp'
+                - $ref: '#/components/schemas/Form_Connection_Audio'
+                - $ref: '#/components/schemas/Form_Connection_Wol'
+          sharingProfileForms:
+            type: array
+            items:
+              $ref: '#/components/schemas/Form_SharingProfile_Display'
+      Form_Connection_Audio:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [audio]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                enable-audio:
+                  type: boolean
+                audio-servername:
+                  type: string
+      Form_Connection_Authentication:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [authentication]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                username-regex:
+                  type: string
+                password-regex:
+                  type: string
+                login-success-regex:
+                  type: string
+                login-failure-regex:
+                  type: string
+                private-key:
+                  type: string
+                passphrase:
+                  type: string
+                domain:
+                  type: string
+                security:
+                  type: string
+                  enum: 
+                    - ""
+                    - rdp
+                    - tls
+                    - nla
+                    - vmconnect
+                    - any
+                client-cert:
+                  type: string
+                client-key:
+                  type: string
+      Form_Connection_BasicParameters:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [basic-parameters]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                initial-program:
+                  type: string
+                client-name:
+                  type: string
+                server-layout:
+                  type: string
+                  enum:
+                    - ""
+                    - "de-ch-qwertz"
+                    - "en-gb-qwerty"
+                    - "de-de-qwertz"
+                    - "en-us-qwerty"
+                    - "es-es-qwerty"
+                    - "es-latam-qwerty"
+                    - "failsafe"
+                    - "fr-be-azerty"
+                    - "fr-fr-azerty"
+                    - "fr-ch-qwertz"
+                    - "hu-hu-qwertz"
+                    - "it-it-qwerty"
+                    - "ja-jp-qwerty"
+                    - "no-no-qwerty"
+                    - "pl-pl-qwerty"
+                    - "pt-br-qwerty"
+                    - "sv-se-qwerty"
+                    - "da-dk-qwerty"
+                    - "tr-tr-qwerty"
+                timezone:
+                  type: string
+                enable-touch:
+                  type: boolean
+                console:
+                  type: boolean
+      Form_Connection_Behavior:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [behavior]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                backspace:
+                  type: string
+                  enum:
+                    - ""
+                    - "8"
+                    - "127"
+                terminal-type:
+                  type: string
+                  enum:
+                    - ""
+                    - xterm
+                    - xterm-256color
+                    - vt220
+                    - vt100
+                    - ansi
+                    - linux
+      Form_Connection_Clipboard:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [clipboard]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                disable-copy:
+                  type: boolean
+                disable-paste:
+                  type: boolean
+                clipboard-encoding:
+                  type: string
+                  enum:
+                    - ""
+                    - ISO8859-1
+                    - UTF-8
+                    - UTF-16
+                    - CP1252
+                normalize-clipboard:
+                  type: string
+                  enum:
+                    - ""
+                    - preserve
+                    - unix
+                    - windows
+      Form_Connection_Container:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [container]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                namespace:
+                  type: string
+                pod:
+                  type: string
+                container:
+                  type: string
+                exec-command:
+                  type: string
+      Form_Connection_DeviceRedirection:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [device-redirection]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                console-audio:
+                  type: boolean
+                disable-audio:
+                  type: boolean
+                enable-audio-input:
+                  type: boolean
+                enable-printing:
+                  type: boolean
+                printer-name:
+                  type: string
+                enable-drive:
+                  type: boolean
+                drive-name:
+                  type: string
+                disable-download:
+                  type: boolean
+                disable-upload:
+                  type: boolean
+                drive-path:
+                  type: string
+                create-drive-path:
+                  type: boolean
+                static-channels:
+                  type: string
+      Form_Connection_Display:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [display]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                color-scheme:
+                  type: string
+                  enum:
+                    - ""
+                    - black-white
+                    - gray-black
+                    - green-black
+                    - white-black
+                font-name:
+                  type: string
+                font-size:
+                  type: string
+                  enum:
+                    - ""
+                    - "8"
+                    - "9"
+                    - "10"
+                    - "11"
+                    - "12"
+                    - "14"
+                    - "18"
+                    - "24"
+                    - "30"
+                    - "36"
+                    - "48"
+                    - "60"
+                    - "72"
+                    - "96"
+                scrollback:
+                  type: integer
+                read-only:
+                  type: boolean
+                swap-red-blue: 
+                  type: boolean
+                cursor:
+                  type: string
+                  enum:
+                    - ""
+                    - "local"
+                    - "remote"
+                color-depth:
+                  type: string
+                  enum:
+                    - ""
+                    - "8"
+                    - "16"
+                    - "24"
+                    - "32"
+                force-lossless:
+                  type: boolean
+                width:
+                  type: integer
+                height:
+                  type: integer
+                dpi:
+                  type: integer
+                resize-method:
+                  type: string
+                  enum:
+                    - ""
+                    - "reconnect"
+                    - "display-update"
+      Form_Connection_Gateway:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [gateway]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                gateway-hostname:
+                  type: string
+                gateway-port:
+                  type: integer
+                gateway-username:
+                  type: string
+                gateway-password:
+                  type: string
+                gateway-domain:
+                  type: string
+      Form_Connection_LoadBalancing:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [load-balancing]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                load-balance-info:
+                  type: string
+      Form_Connection_Network:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [network]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                hostname:
+                  type: string
+                port:
+                  type: integer
+                host-key:
+                  type: string
+                use-ssl:
+                  type: boolean
+                ignore-cert:
+                  type: boolean
+                ca-cert:
+                  type: string
+            required:
+              - hostname
+              - port
+      Form_Connection_Performance:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [performance]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                enable-wallpaper:
+                  type: boolean
+                enable-theming:
+                  type: boolean
+                enable-font-smoothing:
+                  type: boolean
+                enable-full-window-drag:
+                  type: boolean
+                enable-desktop-composition:
+                  type: boolean
+                enable-menu-animations:
+                  type: boolean
+                disable-bitmap-caching:
+                  type: boolean
+                disable-offscreen-caching:
+                  type: boolean
+                disable-glyph-caching:
+                  type: boolean
+      Form_Connection_PreconnectionPdu:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [preconnection-pdu]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                preconnection-id:
+                  type: integer
+                preconnection-blob:
+                  type: string
+      Form_Connection_Recording:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [recording]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                recording-path:
+                  type: string
+                recording-name:
+                  type: string
+                recording-exclude-output:
+                  type: boolean
+                recording-exclude-mouse:
+                  type: boolean
+                recording-exclude-touch:
+                  type: boolean
+                recording-exclude-keys:
+                  type: boolean
+                create-recording-path:
+                  type: boolean
+      Form_Connection_RemoteApp:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [remoteapp]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                remote-app:
+                  type: string
+                remote-app-dir:
+                  type: string
+                remote-app-args:
+                  type: string
+      Form_Connection_Repeater:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [repeater]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                dest-host:
+                  type: string
+                dest-port:
+                  type: integer
+      Form_Connection_Session:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [session]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                command:
+                  type: string
+                locale:
+                  type: string
+                timezone:
+                  type: string
+                server-alive-interval:
+                  type: integer
+      Form_Connection_Sftp:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [sftp]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                enable-sftp:
+                  type: boolean
+                sftp-root-directory:
+                  type: string
+                sftp-disable-download:
+                  type: boolean
+                sftp-disable-upload:
+                  type: boolean
+                sftp-hostname:
+                  type: string
+                sftp-port:
+                  type: integer
+                sftp-host-key:
+                  type: string
+                sftp-username:
+                  type: string
+                sftp-password:
+                  type: string
+                sftp-private-key:
+                  type: string
+                sftp-passphrase:
+                  type: string
+                sftp-directory:
+                  type: string
+                sftp-server-alive-interval:
+                  type: integer
+      Form_Connection_Typescript:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [typescript]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                typescript-path:
+                  type: string
+                typescript-name:
+                  type: string
+                create-typescript-path:
+                  type: boolean
+      Form_Connection_Wol:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [wol]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                wol-send-packet:
+                  type: boolean
+                wol-mac-addr:
+                  type: string
+                wol-broadcast-addr:
+                  type: string
+                wol-udp-port:
+                  type: string
+                wol-wait-time:
+                  type: string
+      Form_SharingProfile_Display:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [display]
+          fields:
+            type: array
+            items:
+              type: object
+              properties:
+                read-only:
+                  type: boolean
+
+  paths:
+    /session:
+      delete:
+        security:
+          - GuacamoleTokenAuth: []
+        operationId: authenticationLogOut
+        description: "Log out of Apache Guacamole"
+        tags:
+          - Authentication 
+        summary: "Log out of Apache Guacamole"
+        responses:
+          204:
+            description: "Log Out Successful"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/activeConnections: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Connections"
+        summary: "List Active Connections"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: {}
+                example: {}
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/connectionGroups/ROOT/tree: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        operationId: getConnectionGroupsListTree
+        tags: 
+          - "Connection Groups"
+        summary: "List Connection Groups"
+        parameters: 
+          - in: query
+            name: permission
+            required: false
+            schema:
+              type: array
+              items:
+                type: string
+                enum: [UPDATE, DELETE, ADMINISTER]
+            style: form
+            explode: true
+            description: >
+              Optional. Can be specified multiple times. Allowed values: UPDATE, DELETE, ADMINISTER.
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json:
+                example: 
+                  name: "ROOT"
+                  identifier: "ROOT"
+                  type: "ORGANIZATIONAL"
+                  activeConnections: 0
+                  childConnectionGroups:
+                    -
+                      name: "My Subgroup"
+                      identifier: "2"
+                      parentIdentifier: "ROOT"
+                      type: "ORGANIZATIONAL"
+                      activeConnections: "0"
+                      attributes:
+                        max-connections: null
+                        max-connections-per-user: null
+                        enable-session-affinity: ""
+                  childConnections: 
+                    - 
+                      name: "My RDP Connection"
+                      identifier: "3"
+                      parentIdentifier: "ROOT"
+                      protocol: "rdp"
+                      attributes: 
+                        guacd-encryption: null
+                        failover-only: null
+                        weight: null
+                        max-connections: null
+                        guacd-hostname: null
+                        guacd-port: null
+                        max-connections-per-user: null
+                      activeConnections: 0
+                  attributes: {}
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/history/connections: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Connections"
+        summary: "List Historical Connections"
+        parameters: 
+          - 
+            in: "query"
+            name: "order"
+            schema: 
+              type: "string"
+              enum:
+                - "-startDate"
+                - "startDate"
+            required: false
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: {}
+                example: []
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/self/effectivePermissions: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Users"
+        summary: "Check Permissions of Self"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    connectionPermissions: 
+                      type: "object"
+                      properties: 
+                        2: 
+                          type: "array"
+                          items: 
+                            type: "string"
+                        3: 
+                          type: "array"
+                          items: 
+                            type: "string"
+                        4: 
+                          type: "array"
+                          items: 
+                            type: "string"
+                        5: 
+                          type: "array"
+                          items: 
+                            type: "string"
+                    connectionGroupPermissions: 
+                      type: "object"
+                      properties: {}
+                    sharingProfilePermissions: 
+                      type: "object"
+                      properties: {}
+                    activeConnectionPermissions: 
+                      type: "object"
+                      properties: {}
+                    userPermissions: 
+                      type: "object"
+                      properties: 
+                        guacadmin: 
+                          type: "array"
+                          items: 
+                            type: "string"
+                    userGroupPermissions: 
+                      type: "object"
+                      properties: {}
+                    systemPermissions: 
+                      type: "array"
+                      items: 
+                        type: "string"
+                example: 
+                  connectionPermissions: 
+                    2: 
+                      - "READ"
+                      - "UPDATE"
+                      - "DELETE"
+                    3: 
+                      - "READ"
+                      - "UPDATE"
+                      - "DELETE"
+                    4: 
+                      - "READ"
+                      - "UPDATE"
+                      - "DELETE"
+                    5: 
+                      - "READ"
+                      - "UPDATE"
+                      - "DELETE"
+                  connectionGroupPermissions: {}
+                  sharingProfilePermissions: {}
+                  activeConnectionPermissions: {}
+                  userPermissions: 
+                    guacadmin: 
+                      - "READ"
+                      - "UPDATE"
+                      - "ADMINISTER"
+                  userGroupPermissions: {}
+                  systemPermissions: 
+                    - "CREATE_USER"
+                    - "CREATE_USER_GROUP"
+                    - "CREATE_CONNECTION"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/userGroups: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "User Groups"
+        summary: "List User Groups"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: {}
+                example: {}
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+      post: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "User Groups"
+        summary: "Create User Group"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        requestBody: 
+          required: true
+          content: 
+            application/json: 
+              schema: 
+                type: "object"
+                properties: 
+                  identifier: 
+                    type: "string"
+                  attributes: 
+                    type: "object"
+                    properties: 
+                      disabled: 
+                        type: "string"
+              example: 
+                identifier: "My Group"
+                attributes: 
+                  disabled: ""
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    identifier: 
+                      type: "string"
+                    attributes: 
+                      type: "object"
+                      properties: 
+                        disabled: 
+                          type: "string"
+                example: 
+                  identifier: "My Group"
+                  attributes: 
+                    disabled: ""
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/users: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Users"
+        summary: "List Users"
+        parameters: 
+          - 
+            in: "query"
+            name: "permission"
+            schema: 
+              type: "string"
+            required: true
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    guacadmin: 
+                      type: "object"
+                      properties: 
+                        username: 
+                          type: "string"
+                        attributes: 
+                          type: "object"
+                          properties: 
+                            guac-email-address: 
+                              type: "string"
+                            guac-organizational-role: 
+                              type: "string"
+                            guac-full-name: 
+                              type: "string"
+                            expired: 
+                              type: "string"
+                            timezone: 
+                              type: "string"
+                            access-window-start: 
+                              type: "string"
+                            guac-organization: 
+                              type: "string"
+                            access-window-end: 
+                              type: "string"
+                            disabled: 
+                              type: "string"
+                            valid-until: 
+                              type: "string"
+                            valid-from: 
+                              type: "string"
+                        lastActive: 
+                          type: "number"
+                example: 
+                  guacadmin: 
+                    username: "guacadmin"
+                    attributes: 
+                      guac-email-address: null
+                      guac-organizational-role: null
+                      guac-full-name: null
+                      expired: null
+                      timezone: null
+                      access-window-start: null
+                      guac-organization: null
+                      access-window-end: null
+                      disabled: null
+                      valid-until: null
+                      valid-from: null
+                    lastActive: 1745417392034
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+      post: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Users"
+        summary: "Create a User"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        requestBody: 
+          required: true
+          content: 
+            application/json:
+              schema: 
+                type: "object"
+                properties: 
+                  username: 
+                    type: "string"
+                  password: 
+                    type: "string"
+                  attributes: 
+                    type: "object"
+                    properties: 
+                      disabled: 
+                        type: "string"
+                      expired: 
+                        type: "string"
+                      access-window-start: 
+                        type: "string"
+                      access-window-end: 
+                        type: "string"
+                      valid-from: 
+                        type: "string"
+                      valid-until: 
+                        type: "string"
+                      timezone: 
+                        type: "string"
+                      guac-full-name: 
+                        type: "string"
+                      guac-email-address: 
+                        type: "string"
+                      guac-organization: 
+                        type: "string"
+                      guac-organizational-role: 
+                        type: "string"
+              example: 
+                username: "newuser"
+                password: "password"
+                attributes: 
+                  disabled: ""
+                  expired: ""
+                  access-window-start: ""
+                  access-window-end: ""
+                  valid-from: ""
+                  valid-until: ""
+                  timezone: "America/Fort_Wayne"
+                  guac-full-name: "My User"
+                  guac-email-address: "user@gmail.com"
+                  guac-organization: "SomeOrg"
+                  guac-organizational-role: "SomeTitle"
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    username: 
+                      type: "string"
+                    password: 
+                      type: "string"
+                    attributes: 
+                      type: "object"
+                      properties: 
+                        guac-email-address: 
+                          type: "string"
+                        guac-organizational-role: 
+                          type: "string"
+                        guac-full-name: 
+                          type: "string"
+                        expired: 
+                          type: "string"
+                        timezone: 
+                          type: "string"
+                        access-window-start: 
+                          type: "string"
+                        guac-organization: 
+                          type: "string"
+                        access-window-end: 
+                          type: "string"
+                        disabled: 
+                          type: "string"
+                        valid-until: 
+                          type: "string"
+                        valid-from: 
+                          type: "string"
+                example: 
+                  username: "newuser"
+                  password: "password"
+                  attributes: 
+                    guac-email-address: "user@gmail.com"
+                    guac-organizational-role: "SomeTitle"
+                    guac-full-name: "My User"
+                    expired: ""
+                    timezone: "America/Fort_Wayne"
+                    access-window-start: ""
+                    guac-organization: "SomeOrg"
+                    access-window-end: ""
+                    disabled: ""
+                    valid-until: ""
+                    valid-from: ""
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/users/{Username}: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Users"
+        summary: "Check Attributes of User"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+          - $ref: '#/components/parameters/Username'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    username: 
+                      type: "string"
+                    attributes: 
+                      type: "object"
+                      properties: 
+                        guac-email-address: 
+                          type: "string"
+                        guac-organizational-role: 
+                          type: "string"
+                        guac-full-name: 
+                          type: "string"
+                        expired: 
+                          type: "string"
+                        timezone: 
+                          type: "string"
+                        access-window-start: 
+                          type: "string"
+                        guac-organization: 
+                          type: "string"
+                        access-window-end: 
+                          type: "string"
+                        disabled: 
+                          type: "string"
+                        valid-until: 
+                          type: "string"
+                        valid-from: 
+                          type: "string"
+                    lastActive: 
+                      type: "number"
+                example: 
+                  username: "guacadmin"
+                  attributes: 
+                    guac-email-address: null
+                    guac-organizational-role: null
+                    guac-full-name: null
+                    expired: null
+                    timezone: null
+                    access-window-start: null
+                    guac-organization: null
+                    access-window-end: null
+                    disabled: null
+                    valid-until: null
+                    valid-from: null
+                  lastActive: 1745417392034
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/schema/connectionAttributes: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Schema"
+        summary: "Get Connection Schema"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: 
+                    type: "object"
+                    properties: 
+                      name: 
+                        type: "string"
+                      fields: 
+                        type: "array"
+                        items: 
+                          type: "object"
+                          properties: 
+                            name: 
+                              type: "string"
+                            type: 
+                              type: "string"
+                            options: 
+                              type: "array"
+                              items: 
+                                type: "string"
+                          required: 
+                            - "name"
+                            - "type"
+                            - "options"
+                    required: 
+                      - "name"
+                      - "fields"
+                example: 
+                  - 
+                    name: "concurrency"
+                    fields: 
+                      - 
+                        name: "max-connections"
+                        type: "NUMERIC"
+                      - 
+                        name: "max-connections-per-user"
+                        type: "NUMERIC"
+                  - 
+                    name: "load-balancing"
+                    fields: 
+                      - 
+                        name: "weight"
+                        type: "NUMERIC"
+                      - 
+                        name: "failover-only"
+                        type: "BOOLEAN"
+                        options: 
+                          - "true"
+                  - 
+                    name: "guacd"
+                    fields: 
+                      - 
+                        name: "guacd-hostname"
+                        type: "TEXT"
+                      - 
+                        name: "guacd-port"
+                        type: "NUMERIC"
+                      - 
+                        name: "guacd-encryption"
+                        type: "ENUM"
+                        options: 
+                          - ""
+                          - "none"
+                          - "ssl"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/schema/protocols: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Schema"
+        summary: "Get Protocol Schema"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    kubernetes: 
+                      type: "object"
+                      properties: 
+                        name: 
+                          type: "string"
+                        connectionForms: 
+                          type: "array"
+                          items: 
+                            type: "object"
+                            properties: 
+                              name: 
+                                type: "string"
+                              fields: 
+                                type: "array"
+                                items: 
+                                  type: "object"
+                                  properties: 
+                                    name: 
+                                      type: "string"
+                                    type: 
+                                      type: "string"
+                                    options: 
+                                      type: "array"
+                                      items: 
+                                        type: "string"
+                                  required: 
+                                    - "name"
+                                    - "type"
+                                    - "options"
+                            required: 
+                              - "name"
+                              - "fields"
+                        sharingProfileForms: 
+                          type: "array"
+                          items: 
+                            type: "object"
+                            properties: 
+                              name: 
+                                type: "string"
+                              fields: 
+                                type: "array"
+                                items: 
+                                  type: "object"
+                                  properties: 
+                                    name: 
+                                      type: "string"
+                                    type: 
+                                      type: "string"
+                                    options: 
+                                      type: "array"
+                                      items: 
+                                        type: "string"
+                    telnet: 
+                      type: "object"
+                      properties: 
+                        name: 
+                          type: "string"
+                        connectionForms: 
+                          type: "array"
+                          items: 
+                            type: "object"
+                            properties: 
+                              name: 
+                                type: "string"
+                              fields: 
+                                type: "array"
+                                items: 
+                                  type: "object"
+                                  properties: 
+                                    name: 
+                                      type: "string"
+                                    type: 
+                                      type: "string"
+                                    options: 
+                                      type: "array"
+                                      items: 
+                                        type: "string"
+                                  required: 
+                                    - "name"
+                                    - "type"
+                                    - "options"
+                            required: 
+                              - "name"
+                              - "fields"
+                        sharingProfileForms: 
+                          type: "array"
+                          items: 
+                            type: "object"
+                            properties: 
+                              name: 
+                                type: "string"
+                              fields: 
+                                type: "array"
+                                items: 
+                                  type: "object"
+                                  properties: 
+                                    name: 
+                                      type: "string"
+                                    type: 
+                                      type: "string"
+                                    options: 
+                                      type: "array"
+                                      items: 
+                                        type: "string"
+                    ssh: 
+                      type: "object"
+                      properties: 
+                        name: 
+                          type: "string"
+                        connectionForms: 
+                          type: "array"
+                          items: 
+                            type: "object"
+                            properties: 
+                              name: 
+                                type: "string"
+                              fields: 
+                                type: "array"
+                                items: 
+                                  type: "object"
+                                  properties: 
+                                    name: 
+                                      type: "string"
+                                    type: 
+                                      type: "string"
+                                    options: 
+                                      type: "array"
+                                      items: 
+                                        type: "string"
+                                  required: 
+                                    - "name"
+                                    - "type"
+                                    - "options"
+                            required: 
+                              - "name"
+                              - "fields"
+                        sharingProfileForms: 
+                          type: "array"
+                          items: 
+                            type: "object"
+                            properties: 
+                              name: 
+                                type: "string"
+                              fields: 
+                                type: "array"
+                                items: 
+                                  type: "object"
+                                  properties: 
+                                    name: 
+                                      type: "string"
+                                    type: 
+                                      type: "string"
+                                    options: 
+                                      type: "array"
+                                      items: 
+                                        type: "string"
+                    vnc: 
+                      type: "object"
+                      properties: 
+                        name: 
+                          type: "string"
+                        connectionForms: 
+                          type: "array"
+                          items: 
+                            type: "object"
+                            properties: 
+                              name: 
+                                type: "string"
+                              fields: 
+                                type: "array"
+                                items: 
+                                  type: "object"
+                                  properties: 
+                                    name: 
+                                      type: "string"
+                                    type: 
+                                      type: "string"
+                                    options: 
+                                      type: "array"
+                                      items: 
+                                        type: "string"
+                                  required: 
+                                    - "name"
+                                    - "type"
+                                    - "options"
+                            required: 
+                              - "name"
+                              - "fields"
+                        sharingProfileForms: 
+                          type: "array"
+                          items: 
+                            type: "object"
+                            properties: 
+                              name: 
+                                type: "string"
+                              fields: 
+                                type: "array"
+                                items: 
+                                  type: "object"
+                                  properties: 
+                                    name: 
+                                      type: "string"
+                                    type: 
+                                      type: "string"
+                                    options: 
+                                      type: "array"
+                                      items: 
+                                        type: "string"
+                    rdp: 
+                      type: "object"
+                      properties: 
+                        name: 
+                          type: "string"
+                        connectionForms: 
+                          type: "array"
+                          items: 
+                            type: "object"
+                            properties: 
+                              name: 
+                                type: "string"
+                              fields: 
+                                type: "array"
+                                items: 
+                                  type: "object"
+                                  properties: 
+                                    name: 
+                                      type: "string"
+                                    type: 
+                                      type: "string"
+                                    options: 
+                                      type: "array"
+                                      items: 
+                                        type: "string"
+                                  required: 
+                                    - "name"
+                                    - "type"
+                                    - "options"
+                            required: 
+                              - "name"
+                              - "fields"
+                        sharingProfileForms: 
+                          type: "array"
+                          items: 
+                            type: "object"
+                            properties: 
+                              name: 
+                                type: "string"
+                              fields: 
+                                type: "array"
+                                items: 
+                                  type: "object"
+                                  properties: 
+                                    name: 
+                                      type: "string"
+                                    type: 
+                                      type: "string"
+                                    options: 
+                                      type: "array"
+                                      items: 
+                                        type: "string"
+                example: 
+                  kubernetes: 
+                    name: "kubernetes"
+                    connectionForms: 
+                      - 
+                        name: "network"
+                        fields: 
+                          - 
+                            name: "hostname"
+                            type: "TEXT"
+                          - 
+                            name: "port"
+                            type: "NUMERIC"
+                          - 
+                            name: "use-ssl"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                          - 
+                            name: "ignore-cert"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                          - 
+                            name: "ca-cert"
+                            type: "MULTILINE"
+                      - 
+                        name: "container"
+                        fields: 
+                          - 
+                            name: "namespace"
+                            type: "TEXT"
+                          - 
+                            name: "pod"
+                            type: "TEXT"
+                          - 
+                            name: "container"
+                            type: "TEXT"
+                          - 
+                            name: "exec-command"
+                            type: "TEXT"
+                      - 
+                        name: "authentication"
+                        fields: 
+                          - 
+                            name: "client-cert"
+                            type: "MULTILINE"
+                          - 
+                            name: "client-key"
+                            type: "MULTILINE"
+                    sharingProfileForms: 
+                      - 
+                        name: "display"
+                        fields: 
+                          - 
+                            name: "read-only"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                  telnet: 
+                    name: "telnet"
+                    connectionForms: 
+                      - 
+                        name: "network"
+                        fields: 
+                          - 
+                            name: "hostname"
+                            type: "TEXT"
+                          - 
+                            name: "port"
+                            type: "NUMERIC"
+                      - 
+                        name: "authentication"
+                        fields: 
+                          - 
+                            name: "username"
+                            type: "USERNAME"
+                          - 
+                            name: "password"
+                            type: "PASSWORD"
+                          - 
+                            name: "username-regex"
+                            type: "TEXT"
+                          - 
+                            name: "password-regex"
+                            type: "TEXT"
+                          - 
+                            name: "login-success-regex"
+                            type: "TEXT"
+                          - 
+                            name: "login-failure-regex"
+                            type: "TEXT"
+                      - 
+                        name: "display"
+                        fields: 
+                          - 
+                            name: "color-scheme"
+                            type: "TERMINAL_COLOR_SCHEME"
+                            options: 
+                              - ""
+                              - "black-white"
+                              - "gray-black"
+                              - "green-black"
+                              - "white-black"
+                          - 
+                            name: "font-name"
+                            type: "TEXT"
+                          - 
+                            name: "font-size"
+                            type: "ENUM"
+                            options: 
+                              - ""
+                              - "8"
+                              - "9"
+                              - "10"
+                              - "11"
+                              - "12"
+                              - "14"
+                              - "18"
+                              - "24"
+                              - "30"
+                              - "36"
+                              - "48"
+                              - "60"
+                              - "72"
+                              - "96"
+                          - 
+                            name: "scrollback"
+                            type: "NUMERIC"
+                          - 
+                            name: "read-only"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                    sharingProfileForms: 
+                      - 
+                        name: "display"
+                        fields: 
+                          - 
+                            name: "read-only"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                  ssh: 
+                    name: "ssh"
+                    connectionForms: 
+                      - 
+                        name: "network"
+                        fields: 
+                          - 
+                            name: "hostname"
+                            type: "TEXT"
+                          - 
+                            name: "port"
+                            type: "NUMERIC"
+                          - 
+                            name: "host-key"
+                            type: "TEXT"
+                      - 
+                        name: "authentication"
+                        fields: 
+                          - 
+                            name: "username"
+                            type: "USERNAME"
+                          - 
+                            name: "password"
+                            type: "PASSWORD"
+                          - 
+                            name: "private-key"
+                            type: "MULTILINE"
+                          - 
+                            name: "passphrase"
+                            type: "PASSWORD"
+                      - 
+                        name: "display"
+                        fields: 
+                          - 
+                            name: "color-scheme"
+                            type: "TERMINAL_COLOR_SCHEME"
+                            options: 
+                              - ""
+                              - "black-white"
+                              - "gray-black"
+                              - "green-black"
+                              - "white-black"
+                          - 
+                            name: "font-name"
+                            type: "TEXT"
+                          - 
+                            name: "font-size"
+                            type: "ENUM"
+                            options: 
+                              - ""
+                              - "8"
+                              - "9"
+                              - "10"
+                              - "11"
+                              - "12"
+                              - "14"
+                              - "18"
+                              - "24"
+                              - "30"
+                              - "36"
+                              - "48"
+                              - "60"
+                              - "72"
+                              - "96"
+                          - 
+                            name: "scrollback"
+                            type: "NUMERIC"
+                          - 
+                            name: "read-only"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                    sharingProfileForms: 
+                      - 
+                        name: "display"
+                        fields: 
+                          - 
+                            name: "read-only"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                  vnc: 
+                    name: "vnc"
+                    connectionForms: 
+                      - 
+                        name: "network"
+                        fields: 
+                          - 
+                            name: "hostname"
+                            type: "TEXT"
+                          - 
+                            name: "port"
+                            type: "NUMERIC"
+                      - 
+                        name: "authentication"
+                        fields: 
+                          - 
+                            name: "username"
+                            type: "USERNAME"
+                          - 
+                            name: "password"
+                            type: "PASSWORD"
+                      - 
+                        name: "display"
+                        fields: 
+                          - 
+                            name: "read-only"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                          - 
+                            name: "swap-red-blue"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                          - 
+                            name: "cursor"
+                            type: "ENUM"
+                            options: 
+                              - ""
+                              - "local"
+                              - "remote"
+                          - 
+                            name: "color-depth"
+                            type: "ENUM"
+                            options: 
+                              - ""
+                              - "8"
+                              - "16"
+                              - "24"
+                              - "32"
+                          - 
+                            name: "force-lossless"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                    sharingProfileForms: 
+                      - 
+                        name: "display"
+                        fields: 
+                          - 
+                            name: "read-only"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                  rdp: 
+                    name: "rdp"
+                    connectionForms: 
+                      - 
+                        name: "network"
+                        fields: 
+                          - 
+                            name: "hostname"
+                            type: "TEXT"
+                          - 
+                            name: "port"
+                            type: "NUMERIC"
+                      - 
+                        name: "authentication"
+                        fields: 
+                          - 
+                            name: "username"
+                            type: "USERNAME"
+                          - 
+                            name: "password"
+                            type: "PASSWORD"
+                          - 
+                            name: "domain"
+                            type: "TEXT"
+                          - 
+                            name: "security"
+                            type: "ENUM"
+                            options: 
+                              - ""
+                              - "rdp"
+                              - "tls"
+                              - "nla"
+                              - "vmconnect"
+                              - "any"
+                          - 
+                            name: "disable-auth"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                          - 
+                            name: "ignore-cert"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+                      - 
+                        name: "gateway"
+                        fields: 
+                          - 
+                            name: "gateway-hostname"
+                            type: "TEXT"
+                          - 
+                            name: "gateway-port"
+                            type: "NUMERIC"
+                          - 
+                            name: "gateway-username"
+                            type: "USERNAME"
+                          - 
+                            name: "gateway-password"
+                            type: "PASSWORD"
+                          - 
+                            name: "gateway-domain"
+                            type: "TEXT"
+                    sharingProfileForms: 
+                      - 
+                        name: "display"
+                        fields: 
+                          - 
+                            name: "read-only"
+                            type: "BOOLEAN"
+                            options: 
+                              - "true"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/connections: 
+      get:
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Connections"
+        summary: "List all Connections"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                example:
+                  5: 
+                    name: "MyTelnet"
+                    identifier: "5"
+                    parentIdentifier: "ROOT"
+                    protocol: "telnet"
+                    attributes: 
+                      failover-only: ""
+                      guacd-encryption: ""
+                      weight: ""
+                      max-connections: ""
+                      guacd-port: ""
+                      max-connections-per-user: ""
+                    activeConnections: 0
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+      post: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Connections"
+        summary: "Create a Connection"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        requestBody: 
+          required: true
+          content: 
+            application/json: 
+              schema: 
+                type: "object"
+                properties: 
+                  parentIdentifier: 
+                    type: "string"
+                  name: 
+                    type: "string"
+                  protocol: 
+                    type: "string"
+                  parameters: 
+                    type: "object"
+                    properties: 
+                      port: 
+                        type: "string"
+                      read-only: 
+                        type: "string"
+                      swap-red-blue: 
+                        type: "string"
+                      cursor: 
+                        type: "string"
+                      color-depth: 
+                        type: "string"
+                      force-lossless: 
+                        type: "string"
+                      clipboard-encoding: 
+                        type: "string"
+                      disable-copy: 
+                        type: "string"
+                      disable-paste: 
+                        type: "string"
+                      dest-port: 
+                        type: "string"
+                      recording-exclude-output: 
+                        type: "string"
+                      recording-exclude-mouse: 
+                        type: "string"
+                      recording-include-keys: 
+                        type: "string"
+                      create-recording-path: 
+                        type: "string"
+                      enable-sftp: 
+                        type: "string"
+                      sftp-port: 
+                        type: "string"
+                      sftp-server-alive-interval: 
+                        type: "string"
+                      sftp-disable-download: 
+                        type: "string"
+                      sftp-disable-upload: 
+                        type: "string"
+                      enable-audio: 
+                        type: "string"
+                      wol-send-packet: 
+                        type: "string"
+                      wol-udp-port: 
+                        type: "string"
+                      wol-wait-time: 
+                        type: "string"
+                      color-scheme: 
+                        type: "string"
+                      font-size: 
+                        type: "string"
+                      scrollback: 
+                        type: "string"
+                      backspace: 
+                        type: "string"
+                      terminal-type: 
+                        type: "string"
+                      create-typescript-path: 
+                        type: "string"
+                  attributes: 
+                    type: "object"
+                    properties: 
+                      max-connections: 
+                        type: "string"
+                      max-connections-per-user: 
+                        type: "string"
+                      weight: 
+                        type: "string"
+                      failover-only: 
+                        type: "string"
+                      guacd-port: 
+                        type: "string"
+                      guacd-encryption: 
+                        type: "string"
+              example: 
+                parentIdentifier: "ROOT"
+                name: "MyTelnet"
+                protocol: "telnet"
+                parameters: 
+                  port: ""
+                  read-only: ""
+                  swap-red-blue: ""
+                  cursor: ""
+                  color-depth: ""
+                  force-lossless: ""
+                  clipboard-encoding: ""
+                  disable-copy: ""
+                  disable-paste: ""
+                  dest-port: ""
+                  recording-exclude-output: ""
+                  recording-exclude-mouse: ""
+                  recording-include-keys: ""
+                  create-recording-path: ""
+                  enable-sftp: ""
+                  sftp-port: ""
+                  sftp-server-alive-interval: ""
+                  sftp-disable-download: ""
+                  sftp-disable-upload: ""
+                  enable-audio: ""
+                  wol-send-packet: ""
+                  wol-udp-port: ""
+                  wol-wait-time: ""
+                  color-scheme: ""
+                  font-size: ""
+                  scrollback: ""
+                  backspace: ""
+                  terminal-type: ""
+                  create-typescript-path: ""
+                attributes: 
+                  max-connections: ""
+                  max-connections-per-user: ""
+                  weight: ""
+                  failover-only: ""
+                  guacd-port: ""
+                  guacd-encryption: ""
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                example: 
+                  name: "MyTelnet"
+                  identifier: "5"
+                  parentIdentifier: "ROOT"
+                  protocol: "telnet"
+                  parameters: 
+                    port: ""
+                    read-only: ""
+                    swap-red-blue: ""
+                    cursor: ""
+                    color-depth: ""
+                    force-lossless: ""
+                    clipboard-encoding: ""
+                    disable-copy: ""
+                    disable-paste: ""
+                    dest-port: ""
+                    recording-exclude-output: ""
+                    recording-exclude-mouse: ""
+                    recording-include-keys: ""
+                    create-recording-path: ""
+                    enable-sftp: ""
+                    sftp-port: ""
+                    sftp-server-alive-interval: ""
+                    sftp-disable-download: ""
+                    sftp-disable-upload: ""
+                    enable-audio: ""
+                    wol-send-packet: ""
+                    wol-udp-port: ""
+                    wol-wait-time: ""
+                    color-scheme: ""
+                    font-size: ""
+                    scrollback: ""
+                    backspace: ""
+                    terminal-type: ""
+                    create-typescript-path: ""
+                  attributes: 
+                    failover-only: ""
+                    guacd-encryption: ""
+                    weight: ""
+                    max-connections: ""
+                    guacd-port: ""
+                    max-connections-per-user: ""
+                  activeConnections: 0
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/schema/connectionGroupAttributes: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Schema"
+        summary: "Get Connection Group Schema"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: 
+                    type: "object"
+                    properties: 
+                      name: 
+                        type: "string"
+                      fields: 
+                        type: "array"
+                        items: 
+                          type: "object"
+                          properties: 
+                            name: 
+                              type: "string"
+                            type: 
+                              type: "string"
+                            options: 
+                              type: "array"
+                              items: 
+                                type: "string"
+                          required: 
+                            - "name"
+                            - "type"
+                example: 
+                  - 
+                    name: "concurrency"
+                    fields: 
+                      - 
+                        name: "max-connections"
+                        type: "NUMERIC"
+                      - 
+                        name: "max-connections-per-user"
+                        type: "NUMERIC"
+                      - 
+                        name: "enable-session-affinity"
+                        type: "BOOLEAN"
+                        options: 
+                          - "true"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/connectionGroups: 
+      post: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Connection Groups"
+        summary: "Create a Connection Group"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        requestBody: 
+          required: true
+          content: 
+            application/json: 
+              schema: 
+                type: "object"
+                properties: 
+                  parentIdentifier: 
+                    type: "string"
+                  name: 
+                    type: "string"
+                  type: 
+                    type: "string"
+                  attributes: 
+                    type: "object"
+                    properties: 
+                      max-connections: 
+                        type: "string"
+                      max-connections-per-user: 
+                        type: "string"
+                      enable-session-affinity: 
+                        type: "string"
+              example: 
+                parentIdentifier: "1"
+                name: "Balancing Group"
+                type: "BALANCING"
+                attributes: 
+                  max-connections: "7"
+                  max-connections-per-user: "2"
+                  enable-session-affinity: ""
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    name: 
+                      type: "string"
+                    identifier: 
+                      type: "string"
+                    parentIdentifier: 
+                      type: "string"
+                    type: 
+                      type: "string"
+                    activeConnections: 
+                      type: "number"
+                    attributes: 
+                      type: "object"
+                      properties: 
+                        max-connections: 
+                          type: "string"
+                        max-connections-per-user: 
+                          type: "string"
+                        enable-session-affinity: 
+                          type: "string"
+                example: 
+                  name: "Balancing Group"
+                  identifier: "2"
+                  parentIdentifier: "1"
+                  type: "BALANCING"
+                  activeConnections: 0
+                  attributes: 
+                    max-connections: "7"
+                    max-connections-per-user: "2"
+                    enable-session-affinity: ""
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/connections/{ConnectionID}: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Connections"
+        summary: "Get Connection Information by ID"
+        parameters: 
+          - $ref: '#/components/parameters/ConnectionID'
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    name: 
+                      type: "string"
+                    identifier: 
+                      type: "string"
+                    parentIdentifier: 
+                      type: "string"
+                    protocol: 
+                      type: "string"
+                    attributes: 
+                      type: "object"
+                      properties: 
+                        guacd-encryption: 
+                          type: "string"
+                        failover-only: 
+                          type: "string"
+                        weight: 
+                          type: "string"
+                        max-connections: 
+                          type: "string"
+                        guacd-hostname: 
+                          type: "string"
+                        guacd-port: 
+                          type: "string"
+                        max-connections-per-user: 
+                          type: "string"
+                    activeConnections: 
+                      type: "number"
+                example: 
+                  name: "MyTelnet"
+                  identifier: "5"
+                  parentIdentifier: "ROOT"
+                  protocol: "telnet"
+                  attributes: 
+                    guacd-encryption: null
+                    failover-only: null
+                    weight: null
+                    max-connections: null
+                    guacd-hostname: null
+                    guacd-port: null
+                    max-connections-per-user: null
+                  activeConnections: 0
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/schema/sharingProfileAttributes: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Schema"
+        summary: "Get Sharing Profile Schema"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: {}
+                example: []
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/sharingProfiles: 
+      get:
+        security:
+            - GuacamoleTokenAuth: []
+        tags: 
+          - "Sharing Profiles"
+        summary: "List Sharing Profiles"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                example: 
+                  6:
+                    name: "Example Sharing Profile"
+                    identifier: "6"
+                    primaryConnectionIdentifier: "1"
+                    parameters: 
+                      read-only: ""
+                    attributes: {}
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+      post: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Sharing Profiles"
+        summary: "Create a Sharing Profile"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        requestBody: 
+          required: true
+          content: 
+            application/json: 
+              schema: 
+                type: "object"
+                properties: 
+                  primaryConnectionIdentifier: 
+                    type: "string"
+                  name: 
+                    type: "string"
+                  parameters: 
+                    type: "object"
+                    properties: 
+                      read-only: 
+                        type: "string"
+                  attributes: 
+                    type: "object"
+                    properties: {}
+              example: 
+                primaryConnectionIdentifier: "1"
+                name: "Example Sharing Profile"
+                parameters: 
+                  read-only: ""
+                attributes: {}
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    name: 
+                      type: "string"
+                    identifier: 
+                      type: "string"
+                    primaryConnectionIdentifier: 
+                      type: "string"
+                    parameters: 
+                      type: "object"
+                      properties: 
+                        read-only: 
+                          type: "string"
+                    attributes: 
+                      type: "object"
+                      properties: {}
+                example: 
+                  name: "Example Sharing Profile"
+                  identifier: "2"
+                  primaryConnectionIdentifier: "1"
+                  parameters: 
+                    read-only: ""
+                  attributes: {}
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/sharingProfiles/{SharingProfileID}: 
+      get:
+        security:
+            - GuacamoleTokenAuth: []
+        tags: 
+          - "Sharing Profiles"
+        summary: "Query a Given Sharing Profile"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+          - $ref: '#/components/parameters/SharingProfileID'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                example: 
+                  6:
+                    name: "Example Sharing Profile"
+                    identifier: "6"
+                    primaryConnectionIdentifier: "1"
+                    parameters: 
+                      read-only: ""
+                    attributes: {}
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+      delete:
+        security:
+            - GuacamoleTokenAuth: []
+        tags: 
+          - "Sharing Profiles"
+        summary: "Delete a Given Sharing Profile"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+          - $ref: '#/components/parameters/SharingProfileID'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                example: 
+                  6:
+                    name: "Example Sharing Profile"
+                    identifier: "6"
+                    primaryConnectionIdentifier: "1"
+                    parameters: 
+                      read-only: ""
+                    attributes: {}
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+      put: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Sharing Profiles"
+        summary: "Update a Sharing Profile"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+          - $ref: '#/components/parameters/SharingProfileID'
+        requestBody: 
+          required: true
+          content: 
+            application/json: 
+              schema: 
+                type: "object"
+                properties: 
+                  primaryConnectionIdentifier: 
+                    type: "string"
+                  name: 
+                    type: "string"
+                  parameters: 
+                    type: "object"
+                    properties: 
+                      read-only: 
+                        type: "string"
+                  attributes: 
+                    type: "object"
+                    properties: {}
+              example: 
+                primaryConnectionIdentifier: "1"
+                name: "Example Sharing Profile"
+                parameters: 
+                  read-only: ""
+                attributes: {}
+        responses: 
+          204: 
+            description: "Update Successful"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/connections/{ConnectionID}/history: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Connections"
+        summary: "Get Usage History of a Given Connection"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+          - $ref: '#/components/parameters/ConnectionID'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: {}
+                example: []
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/connections/{ConnectionID}/parameters: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Connections"
+        summary: "Get Usage Parameters of a Given Connection"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+          - $ref: '#/components/parameters/ConnectionID'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: {}
+                example: {}
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/schema/userAttributes: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Schema"
+        summary: "Get User Schema"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: 
+                    type: "object"
+                    properties: 
+                      name: 
+                        type: "string"
+                      fields: 
+                        type: "array"
+                        items: 
+                          type: "object"
+                          properties: 
+                            name: 
+                              type: "string"
+                            type: 
+                              type: "string"
+                            options: 
+                              type: "array"
+                              items: 
+                                type: "string"
+                          required: 
+                            - "name"
+                            - "type"
+                            - "options"
+                    required: 
+                      - "name"
+                      - "fields"
+                example: 
+                  - 
+                    name: "profile"
+                    fields: 
+                      - 
+                        name: "guac-full-name"
+                        type: "TEXT"
+                      - 
+                        name: "guac-email-address"
+                        type: "EMAIL"
+                      - 
+                        name: "guac-organization"
+                        type: "TEXT"
+                      - 
+                        name: "guac-organizational-role"
+                        type: "TEXT"
+                  - 
+                    name: "restrictions"
+                    fields: 
+                      - 
+                        name: "disabled"
+                        type: "BOOLEAN"
+                        options: 
+                          - "true"
+                      - 
+                        name: "expired"
+                        type: "BOOLEAN"
+                        options: 
+                          - "true"
+                      - 
+                        name: "access-window-start"
+                        type: "TIME"
+                      - 
+                        name: "access-window-end"
+                        type: "TIME"
+                      - 
+                        name: "valid-from"
+                        type: "DATE"
+                      - 
+                        name: "valid-until"
+                        type: "DATE"
+                      - 
+                        name: "timezone"
+                        type: "TIMEZONE"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/schema/userGroupAttributes: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Schema"
+        summary: "Get User Group Schema"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: 
+                    type: "object"
+                    properties: 
+                      name: 
+                        type: "string"
+                      fields: 
+                        type: "array"
+                        items: 
+                          type: "object"
+                          properties: 
+                            name: 
+                              type: "string"
+                            type: 
+                              type: "string"
+                            options: 
+                              type: "array"
+                              items: 
+                                type: "string"
+                example: 
+                  - 
+                    name: "restrictions"
+                    fields: 
+                      - 
+                        name: "disabled"
+                        type: "BOOLEAN"
+                        options: 
+                          - "true"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/connectionGroups/{ConnectionGroupID}: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Connection Groups"
+        summary: "Get Connection Group by ID"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+          - $ref: '#/components/parameters/ConnectionGroupID'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    name: 
+                      type: "string"
+                    identifier: 
+                      type: "string"
+                    parentIdentifier: 
+                      type: "string"
+                    type: 
+                      type: "string"
+                    activeConnections: 
+                      type: "number"
+                    attributes: 
+                      type: "object"
+                      properties: 
+                        max-connections: 
+                          type: "string"
+                        max-connections-per-user: 
+                          type: "string"
+                        enable-session-affinity: 
+                          type: "string"
+                example: 
+                  name: "Org Group"
+                  identifier: "1"
+                  parentIdentifier: "ROOT"
+                  type: "ORGANIZATIONAL"
+                  activeConnections: 0
+                  attributes: 
+                    max-connections: "4"
+                    max-connections-per-user: "2"
+                    enable-session-affinity: "true"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/users/{Username}/permissions: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Users"
+        summary: "Check Permissions of a Given User"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+          - $ref: '#/components/parameters/Username'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    connectionPermissions: 
+                      type: "object"
+                      properties: {}
+                    connectionGroupPermissions: 
+                      type: "object"
+                      properties: {}
+                    sharingProfilePermissions: 
+                      type: "object"
+                      properties: {}
+                    activeConnectionPermissions: 
+                      type: "object"
+                      properties: {}
+                    userPermissions: 
+                      type: "object"
+                      properties: 
+                        newuser: 
+                          type: "array"
+                          items: 
+                            type: "string"
+                    userGroupPermissions: 
+                      type: "object"
+                      properties: {}
+                    systemPermissions: 
+                      type: "array"
+                      items: 
+                        type: "string"
+                example: 
+                  connectionPermissions: {}
+                  connectionGroupPermissions: {}
+                  sharingProfilePermissions: {}
+                  activeConnectionPermissions: {}
+                  userPermissions: 
+                    newuser: 
+                      - "READ"
+                  userGroupPermissions: {}
+                  systemPermissions: 
+                    - "CREATE_USER"
+                    - "CREATE_USER_GROUP"
+                    - "CREATE_CONNECTION"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/users/{Username}/userGroups: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "Users"
+        summary: "List Groups of a Given User"
+        parameters: 
+          - $ref: '#/components/parameters/DbTypeParam'
+          - $ref: '#/components/parameters/Username'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: 
+                    type: "string"
+                example: 
+                  - "My Group"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/userGroups/{UserGroupName}: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "User Groups"
+        summary: "Get Configuration of a Given User Group"
+        parameters: 
+          - $ref: '#/components/parameters/UserGroupName'
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    identifier: 
+                      type: "string"
+                    attributes: 
+                      type: "object"
+                      properties: 
+                        disabled: 
+                          type: "string"
+                example: 
+                  identifier: "My Group"
+                  attributes: 
+                    disabled: null
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/userGroups/{UserGroupName}/permissions: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "User Groups"
+        summary: "Get Permissions of a Given User Group"
+        parameters: 
+          - $ref: '#/components/parameters/UserGroupName'
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "object"
+                  properties: 
+                    connectionPermissions: 
+                      type: "object"
+                      properties: {}
+                    connectionGroupPermissions: 
+                      type: "object"
+                      properties: {}
+                    sharingProfilePermissions: 
+                      type: "object"
+                      properties: {}
+                    activeConnectionPermissions: 
+                      type: "object"
+                      properties: {}
+                    userPermissions: 
+                      type: "object"
+                      properties: {}
+                    userGroupPermissions: 
+                      type: "object"
+                      properties: {}
+                    systemPermissions: 
+                      type: "array"
+                      items: 
+                        type: "string"
+                example: 
+                  connectionPermissions: {}
+                  connectionGroupPermissions: {}
+                  sharingProfilePermissions: {}
+                  activeConnectionPermissions: {}
+                  userPermissions: {}
+                  userGroupPermissions: {}
+                  systemPermissions: 
+                    - "CREATE_USER"
+                    - "CREATE_USER_GROUP"
+                    - "CREATE_CONNECTION"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/userGroups/{UserGroupName}/userGroups: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "User Groups"
+        summary: "Get Parent User Groups of a Given User Group"
+        parameters: 
+          - $ref: '#/components/parameters/UserGroupName'
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: {}
+                example: []
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/userGroups/{UserGroupName}/memberUserGroups: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "User Groups"
+        summary: "Get Member User Groups of a Given User Group"
+        parameters: 
+          - $ref: '#/components/parameters/UserGroupName'
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: {}
+                example: []
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /session/data/{DbType}/userGroups/{UserGroupName}/memberUsers: 
+      get: 
+        security:
+          - GuacamoleTokenAuth: []
+        tags: 
+          - "User Groups"
+        summary: "Get Members of a Given User Group"
+        parameters: 
+          - $ref: '#/components/parameters/UserGroupName'
+          - $ref: '#/components/parameters/DbTypeParam'
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  type: "array"
+                  items: 
+                    type: "string"
+                example: 
+                  - "guacadmin"
+          403:
+            $ref: '#/components/responses/PermissionDenied'
+    /tokens: 
+      post: 
+        security: []
+        operationId: authenticationLogIn
+        description: "Log into Apache Guacamole"
+        tags: 
+          - "Authentication"
+        summary: "Log into Apache Guacamole"
+        parameters: []
+        requestBody: 
+          required: true
+          content: 
+            application/x-www-form-urlencoded: 
+              schema: 
+                type: "object"
+                properties: 
+                  token: 
+                    type: "string"
+                    example: ""
+                  username:
+                    type: "string"
+                    example: "guacadmin"
+                  password:
+                    type: "string"
+                    example: "guacadmin"
+        responses: 
+          200: 
+            description: "Login Successful"
+            content: 
+              application/json: 
+                example: 
+                  authToken: "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF"
+                  username: "guacadmin"
+                  dataSource: "postgresql"
+                  availableDataSources: 
+                    - "postgresql"
+                    - "postgresql-shared"
+          403:
+            description: "Authentication Failed"
+            content:
+              application/json:
+                example:
+                  message: "Invalid login"
+                  translatableMessage: 
+                    key: APP.TEXT_UNTRANSLATED
+                    variables:
+                      MESSAGE: "Invalid login"
+                  statusCode: null
+                  expected:
+                    - name: "username"
+                      type: "USERNAME"
+                    - name: "password"
+                      type: "PASSWORD"
+                  type: "INVALID_CREDENTIALS"

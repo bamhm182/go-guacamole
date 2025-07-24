@@ -1,0 +1,5 @@
+package: guacamole
+output: guacamole.gen.go
+generate:
+  models: true
+  client: true
