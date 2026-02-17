@@ -93,6 +93,7 @@ type User struct {
 	Password   string            `json:"password,omitempty"`
 	Disabled   bool              `json:"disabled,omitempty"`
 	Attributes NullableStringMap `json:"attributes"`
+	LastActive int64             `json:"lastActive,omitempty"`
 }
 
 // UserGroup represents a Guacamole user group.

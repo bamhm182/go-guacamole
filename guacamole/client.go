@@ -54,6 +54,22 @@ func NewClientWithHTTPClient(baseURL string, httpClient *http.Client) *Client {
 	}
 }
 
+// NewClientWithToken creates a Client pre-loaded with an existing auth token
+// and data source, bypassing the Authenticate step. This is useful when the
+// caller already holds a Guacamole session token (e.g. from a provider
+// configuration that uses token-based auth instead of username/password).
+func NewClientWithToken(baseURL, token, dataSource string, httpClient *http.Client) *Client {
+	if httpClient == nil {
+		httpClient = &http.Client{Timeout: 30 * time.Second}
+	}
+	return &Client{
+		baseURL:    strings.TrimRight(baseURL, "/"),
+		httpClient: httpClient,
+		authToken:  token,
+		dataSource: dataSource,
+	}
+}
+
 // Authenticate performs the Guacamole token exchange (POST /api/tokens) and
 // stores the resulting token and data source for use in subsequent calls.
 // It must be called before any resource method.
